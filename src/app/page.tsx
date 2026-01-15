@@ -21,7 +21,7 @@ export default function Home() {
         <div className="bg-white/5 border border-white/10 p-6 rounded-2xl w-full max-w-2xl">
           <h3 className="text-white text-sm font-bold mb-3 uppercase tracking-widest opacity-50">Usage in README.md</h3>
           <code className="text-blue-400 text-xs break-all">
-            ![Chelsea Rant Widget](https://your-app-url.vercel.app/api/rant)
+            ![Chelsea Rant Widget](https://chelsea-rant.vercel.app/api/rant)
           </code>
         </div>
       </div>
