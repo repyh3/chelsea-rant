@@ -6,34 +6,44 @@ import { getTeamColor } from '@/lib/colors';
 export const runtime = 'edge';
 
 export async function GET() {
+  try {
+    const match = await getChelseaResult();
+    const rant = getRandomRant(match.outcome);
+
+    const themes: Record<string, { accent: string; label: string; scribble: string }> = {
+      win: {
+        accent: '#fbbf24',
+        label: 'GET IN!',
+        scribble: 'M10,240 Q50,200 100,230 T200,210 T300,240 T400,220 T500,240'
+      },
+      draw: {
+        accent: '#9ca3af',
+        label: 'WHATEVER.',
+        scribble: 'M0,120 L600,125 M50,130 L550,110'
+      },
+      loss: {
+        accent: '#ef4444',
+        label: 'PAIN.',
+        scribble: 'M10,10 L50,50 M550,10 L590,50 M10,180 L50,230 M550,180 L590,230'
+      }
+    };
+
+    const theme = themes[match.outcome];
+    const chelseaColor = '#034694';
+    const opponentColor = getTeamColor(match.opponentName);
+    const logoUrl = `https://resources.premierleague.com/premierleague/badges/t${match.opponentCode}.png`;
+
+    let logoBase64 = '';
     try {
-        const match = await getChelseaResult();
-        const rant = getRandomRant(match.outcome);
+      const logoRes = await fetch(logoUrl);
+      const logoBuffer = await logoRes.arrayBuffer();
+      const logoType = logoRes.headers.get('content-type') || 'image/png';
+      logoBase64 = `data:${logoType};base64,${Buffer.from(logoBuffer).toString('base64')}`;
+    } catch (e) {
+      console.error('Logo Fetch Error:', e);
+    }
 
-        const themes: Record<string, { accent: string; label: string; scribble: string }> = {
-            win: {
-                accent: '#fbbf24',
-                label: 'GET IN!',
-                scribble: 'M10,240 Q50,200 100,230 T200,210 T300,240 T400,220 T500,240'
-            },
-            draw: {
-                accent: '#9ca3af',
-                label: 'WHATEVER.',
-                scribble: 'M0,120 L600,125 M50,130 L550,110'
-            },
-            loss: {
-                accent: '#ef4444',
-                label: 'PAIN.',
-                scribble: 'M10,10 L50,50 M550,10 L590,50 M10,180 L50,230 M550,180 L590,230'
-            }
-        };
-
-        const theme = themes[match.outcome];
-        const chelseaColor = '#034694';
-        const opponentColor = getTeamColor(match.opponentName);
-        const logoUrl = `https://resources.premierleague.com/premierleague/badges/t${match.opponentCode}.png`;
-
-        const svg = `
+    const svg = `
 <svg width="600" height="250" viewBox="0 0 600 250" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <filter id="noise">
@@ -59,7 +69,7 @@ export async function GET() {
   <text x="30" y="72" fill="white" font-family="Impact, sans-serif" font-size="36" font-weight="900" transform="rotate(-1.5, 30, 72)">vs ${match.opponentName.toUpperCase()}</text>
 
   <g transform="rotate(5, 520, 45)">
-    <image href="${logoUrl}" x="480" y="10" width="70" height="70" opacity="0.6" />
+    <image href="${logoBase64}" x="480" y="10" width="70" height="70" opacity="0.6" />
   </g>
 
   <g transform="translate(300, 125)">
@@ -78,20 +88,20 @@ export async function GET() {
 </svg>
 `.trim();
 
-        return new NextResponse(svg, {
-            headers: {
-                'Content-Type': 'image/svg+xml',
-                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59',
-            },
-        });
-    } catch (error) {
-        console.error('SVG V2 Error:', error);
-        return new NextResponse(
-            `<svg width="600" height="300" xmlns="http://www.w3.org/2000/svg">
+    return new NextResponse(svg, {
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59',
+      },
+    });
+  } catch (error) {
+    console.error('SVG V2 Error:', error);
+    return new NextResponse(
+      `<svg width="600" height="300" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="#111"/>
         <text x="50%" y="50%" text-anchor="middle" fill="white" font-family="sans-serif">FPL API Error or No Matches</text>
       </svg>`,
-            { status: 200, headers: { 'Content-Type': 'image/svg+xml' } }
-        );
-    }
+      { status: 200, headers: { 'Content-Type': 'image/svg+xml' } }
+    );
+  }
 }
