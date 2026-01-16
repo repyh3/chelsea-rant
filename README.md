@@ -13,6 +13,4 @@ Add this to your Profile README:
 ## Features
 
 - **Live Data**: Scores and opponents fetched from the official FPL API.
-- **Team-Aware Themes**: Background splits diagonally using the opponent's official colors.
-- **Brutalist Aesthetic**: Distorted elements, aggressive typography, and texture filters.
 - **Dynamic Rants**: Rotates through a library of fan rants appropriate for wins, draws, or losses.
