@@ -9,6 +9,7 @@ Add this to your Profile README:
 ```markdown
 ![Chelsea Rant Widget](https://chelsea-rant.vercel.app/api/rant)
 ```
+<img src="https://chelsea-rant.vercel.app/api/rant" height="200" />
 
 ## Features
 
